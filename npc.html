@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Arenamatic - NPC</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .logout-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .logout-button {
+            background-color: #e74c3c;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .logout-button:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logout-container">
+            <button onclick="logout()" class="logout-button" role="button" aria-label="Esci">
+                <span class="icon">🚪</span> Logout
+            </button>
+        </div>
+
+        <h1>Elenco NPC</h1>
+        <div class="menu">
+            <a href="index.html" class="button">Home</a>
+            <button id="btnCreaNPC" class="button">Crea NPC</button>
+            <div class="file-upload-container">
+                <input type="file" id="caricaNPC" accept=".txt" multiple style="display: none;">
+                <button id="btnCaricaNPC" class="button">Carica NPC</button>
+            </div>
+        </div>
+        <div class="version-switcher">
+            <button id="switchToDesktop" class="version-button">Versione Desktop</button>
+            <button id="switchToMobile" class="version-button">Versione Smartphone</button>
+        </div>
+        
+        <div class="select-container">
+            <h2>Scelta NPC</h2>
+            <select id="npcSelector" onchange="mostraNPCSelezionato()">
+                <!-- Le opzioni verranno popolate dinamicamente -->
+            </select>
+            <div id="deleteButtonContainer" style="margin-top: 10px;"></div>
+        </div>
+
+        <div id="npcDetailContainer">
+            <!-- I dettagli dell'NPC verranno inseriti qui dinamicamente -->
+        </div>
+
+        <!-- Modal per il moveset -->
+        <div id="movesetModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Moveset</h2>
+                <div id="movesetContent"></div>
+            </div>
+        </div>
+
+        <!-- Modal per le frasi -->
+        <div id="frasiModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Frasi</h2>
+                <div id="frasiContent"></div>
+            </div>
+        </div>
+
+        <!-- Preview del codice -->
+        <div id="previewModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Anteprima</h2>
+                <div id="previewContent"></div>
+            </div>
+        </div>
+
+        <!-- Aggiungi questo modal alla fine del body, prima dello script -->
+        <div id="creaNPCModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Crea Nuovo NPC</h2>
+                <form id="formCreaNPC">
+                    <div class="form-group">
+                        <label for="nomeNPC">Nome NPC:</label>
+                        <input type="text" id="nomeNPC" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pianoArena">Piano Arena Celeste:</label>
+                        <input type="number" id="pianoArena" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Miniatura NPC:</label>
+                        <div class="miniatura-input-container">
+                            <div class="input-option">
+                                <input type="radio" id="urlOption" name="miniaturaType" value="url" checked>
+                                <label for="urlOption">Da URL</label>
+                                <input type="text" id="urlMiniatura" class="miniatura-input" placeholder="Inserisci URL immagine">
+                            </div>
+                            <div class="input-option">
+                                <input type="radio" id="fileOption" name="miniaturaType" value="file">
+                                <label for="fileOption">Da File</label>
+                                <input type="file" id="fileMiniatura" class="miniatura-input" accept="image/*" disabled>
+                            </div>
+                            <div id="preview-container" class="preview-container" style="display: none;">
+                                <img id="miniatura-preview" src="" alt="Anteprima miniatura">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="vitaIniziale">Vita Iniziale:</label>
+                        <input type="number" id="vitaIniziale" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="destrezza">Destrezza:</label>
+                        <input type="number" id="destrezza" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="velocita">Velocità:</label>
+                        <input type="number" id="velocita" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="riflessi">Riflessi:</label>
+                        <input type="number" id="riflessi" min="1" required>
+                    </div>
+
+                    <h3>Moveset Difensivo</h3>
+                    <div id="movesetDifensivo">
+                        <!-- I campi verranno generati dinamicamente -->
+                    </div>
+
+                    <h3>Moveset Offensivo</h3>
+                    <div id="movesetOffensivo">
+                        <!-- I campi verranno generati dinamicamente -->
+                    </div>
+
+                    <button type="submit" class="button">Crea NPC</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+    <script>
+        // Aggiungi event listener per il caricamento del file
+        document.getElementById('btnCaricaNPC').addEventListener('click', function() {
+            document.getElementById('caricaNPC').click();
+        });
+        
+        document.getElementById('caricaNPC').addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                caricaNPCDaFile(e);  // Passa l'evento direttamente
+                // Reset dell'input file
+                e.target.value = '';
+            }
+        });
+    </script>
+</body>
+</html>

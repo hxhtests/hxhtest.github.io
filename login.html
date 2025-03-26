@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arenamatic - Login</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .login-title {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            text-align: center;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="login-container">
+            <h1 class="login-title">Arenamatic</h1>
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="username">Nome Utente:</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="button">Accedi</button>
+                <div id="errorMessage" class="error-message">
+                    Credenziali non valide. Riprova.
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Credenziali fisse
+        const VALID_USERNAME = 'hxh';
+        const VALID_PASSWORD = 'gdrremastered';
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+
+            if (username === VALID_USERNAME && password === VALID_PASSWORD) {
+                // Salva lo stato di login nel localStorage
+                localStorage.setItem('isLoggedIn', 'true');
+                // Reindirizza alla home
+                window.location.href = 'index.html';
+            } else {
+                errorMessage.style.display = 'block';
+                // Pulisci i campi
+                document.getElementById('password').value = '';
+            }
+        });
+
+        // Controlla se l'utente è già loggato
+        window.addEventListener('load', function() {
+            if (localStorage.getItem('isLoggedIn') === 'true') {
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html> 

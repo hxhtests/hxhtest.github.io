@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Arenamatic - Sistema avanzato di gestione NPC per arena di combattimento. Crea, gestisci e simula combattimenti con personaggi non giocanti.">
+    <meta name="keywords" content="arena, npc, gioco di ruolo, combattimento, gestione personaggi, rpg, simulazione combattimento">
+    <meta name="author" content="Arenamatic Team">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="Arenamatic - Sistema di Gestione NPC">
+    <meta property="og:description" content="Sistema avanzato di gestione NPC per arena di combattimento. Crea, gestisci e simula combattimenti.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://localhost:8080/">
+    <meta property="og:image" content="http://localhost:8080/images/logo.png">
+    <title>Arenamatic - Sistema di Gestione NPC</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="manifest" href="manifest.json">
+    <!-- Preconnect per performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <!-- Gestione cache -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <style>
+        .logout-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .logout-button {
+            background-color: #e74c3c;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .logout-button:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" role="main">
+        <div class="logout-container">
+            <button onclick="logout()" class="logout-button" role="button" aria-label="Esci">
+                <span class="icon">🚪</span> Logout
+            </button>
+        </div>
+
+        <header>
+            <h1>Arenamatic</h1>
+        </header>
+        
+        <nav class="menu" role="navigation" aria-label="Menu principale">
+            <a href="npc.html" class="button" title="Gestisci NPC" role="button" aria-label="Vai alla gestione NPC">
+                <span class="icon">👥</span> NPC
+            </a>
+            <a href="role.html" class="button" title="Visualizza descrizioni dei ruoli" role="button" aria-label="Vai alle descrizioni dei ruoli">
+                <span class="icon">📜</span> Descrizione Role
+            </a>
+            <a href="incontro.html" class="button" title="Inizia un nuovo incontro" role="button" aria-label="Inizia un nuovo incontro">
+                <span class="icon">⚔️</span> Inizia
+            </a>
+        </nav>
+
+        <div class="version-switcher" role="group" aria-label="Selettore versione">
+            <button id="switchToDesktop" class="version-button" role="button" aria-label="Passa alla versione desktop">
+                <span class="icon">🖥️</span> Versione Desktop
+            </button>
+            <button id="switchToMobile" class="version-button" role="button" aria-label="Passa alla versione mobile">
+                <span class="icon">📱</span> Versione Smartphone
+            </button>
+        </div>
+
+        <footer role="contentinfo">
+            <p>Version 1.0.1 - &copy; 2024 Arenamatic</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Gestione errori globale
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            console.error('Errore: ', msg, 'URL: ', url, 'Linea: ', lineNo);
+            // Mostra un messaggio di errore user-friendly
+            const errorMessage = document.createElement('div');
+            errorMessage.className = 'error-message';
+            errorMessage.setAttribute('role', 'alert');
+            errorMessage.textContent = 'Si è verificato un errore. Ricarica la pagina o contatta il supporto.';
+            document.body.appendChild(errorMessage);
+            return false;
+        };
+
+        // Service Worker per PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registrato');
+                    })
+                    .catch(error => {
+                        console.error('Errore nella registrazione del ServiceWorker:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

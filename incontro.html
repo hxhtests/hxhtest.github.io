@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Arenamatic - Inizia</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .logout-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .logout-button {
+            background-color: #e74c3c;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .logout-button:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logout-container">
+            <button onclick="logout()" class="logout-button" role="button" aria-label="Esci">
+                <span class="icon">🚪</span> Logout
+            </button>
+        </div>
+
+        <h1>Genera Post</h1>
+        <div class="menu">
+            <a href="index.html" class="button">Home</a>
+        </div>
+        <div class="version-switcher">
+            <button id="switchToDesktop" class="version-button">Versione Desktop</button>
+            <button id="switchToMobile" class="version-button">Versione Smartphone</button>
+        </div>
+
+        <div class="post-generator">
+            <div class="form-group">
+                <label for="selectNPC">Seleziona NPC:</label>
+                <select id="selectNPC" onchange="mostraStatisticheNPC()">
+                    <!-- Le opzioni verranno popolate dinamicamente -->
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="nomeGiocatore">Nome Giocatore:</label>
+                <input type="text" id="nomeGiocatore">
+            </div>
+
+            <div class="form-group">
+                <label for="esitoAttaccoPrecedente">Esito attacco precedente:</label>
+                <select id="esitoAttaccoPrecedente">
+                    <option value="non_pertinente">Non pertinente</option>
+                    <option value="vittoria_npc">Vittoria NPC</option>
+                </select>
+            </div>
+
+            <div id="statsNPC" class="stats-display">
+                <!-- Le statistiche dell'NPC verranno mostrate qui -->
+            </div>
+
+            <div class="form-group">
+                <label for="forzaAttacco">Forza attacco PG:</label>
+                <input type="number" id="forzaAttacco" min="1" required>
+            </div>
+
+            <div class="form-group">
+                <label for="velocitaAttacco">Velocità attacco PG:</label>
+                <input type="number" id="velocitaAttacco" min="1" required>
+            </div>
+
+            <div class="form-group">
+                <label for="difesaNPC">Difesa NPC (1-5):</label>
+                <div class="input-with-checkbox">
+                    <input type="number" id="difesaNPC" min="1" max="5" required>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="ostinazioneDifesa"> Ostinazione Difesa
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="attaccoNPC">Attacco NPC (1-5):</label>
+                <div class="input-with-checkbox">
+                    <input type="number" id="attaccoNPC" min="1" max="5" required>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="ostinazioneAttacco"> Ostinazione Attacco
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="tenaciaDifesa">Tenacia Difesa (1-100):</label>
+                <input type="number" id="tenaciaDifesa" min="1" max="100" required>
+            </div>
+
+            <div class="form-group">
+                <label for="tenaciaAttacco">Tenacia Attacco (1-100):</label>
+                <input type="number" id="tenaciaAttacco" min="1" max="100" required>
+            </div>
+
+            <div class="form-group">
+                <label for="vitaResidua">Vita residua NPC:</label>
+                <input type="number" id="vitaResidua" min="0" required>
+            </div>
+
+            <button onclick="generaPost()" class="button">Genera Risposta</button>
+
+            <div class="output-section">
+                <h3>Codice Generato:</h3>
+                <div id="generatedText" class="text-output">
+                    <!-- Il testo generato apparirà qui -->
+                </div>
+                <button onclick="copiaTestoGenerato()" class="copy-button">Copia Testo</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
