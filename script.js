@@ -424,7 +424,7 @@ function generaPost() {
 
     let testoGenerato = '';
     const npc = npcList.find(n => n.nome === npcNome);
-    let resistenzaTotale = 0;
+    let difesa = 0;
     
     // Aggiungi il disclaimer
     testoGenerato += '[SPOILER] Risposta generata in modo semiautomatico senza controllo stretto dello Staff. In caso di problemi o dubbi contattare i Master [/SPOILER]\n\n';
@@ -453,66 +453,54 @@ function generaPost() {
 
     // Tratta la mossa come schivata se è la quinta mossa o se è marcata come speciale
     if (difesaNPC === 5 || descrizioneOriginale.startsWith('€')) {
-        let descrizioneParts;
-        
         // Gestisci diversamente la difesa 5 e le mosse speciali
-        if (descrizioneOriginale.startsWith('€')) {
-            descrizioneParts = descrizioneOriginale.replace('€', '').split('|');
-        } else if (descrizioneOriginale.includes('|')) {
-            descrizioneParts = descrizioneOriginale.split('|');
-        } else {
-            // Se non c'è il separatore |, usa la descrizione base per il fallimento
-            descrizioneParts = [
-                "Schiva l'attacco",
-                `${npc.nome} cerca di schivare l'attacco, senza riuscirci`
-            ];
-        }
-        
-        // Verifica se la schivata è possibile
         const schivataRiuscita = npc.riflessi >= velocitaAttacco && npc.destrezza >= velocitaAttacco;
         
-        // Usa la descrizione appropriata in base al risultato
-        testoGenerato += (schivataRiuscita ? descrizioneParts[0] : descrizioneParts[1]).trim() + '\n\n';
-        testoGenerato += '[QUOTE] Fase difensiva\n';
-        
         if (schivataRiuscita) {
+            testoGenerato += `${npc.nome} schiva l'attacco\n\n`;
+            testoGenerato += `[QUOTE]\n`;
             testoGenerato += `Riflessi (${npc.riflessi}) e Destrezza (${npc.destrezza}) maggiori o uguali di Velocità attacco (${velocitaAttacco}): Schivata riuscita\n`;
-            testoGenerato += 'Nessun danno subito [/QUOTE]\n\n';
-
+            testoGenerato += `[/QUOTE]\n\n`;
+            
             // Gestione fase offensiva dopo schivata riuscita
             const mossaOffensiva = npc.movesetOffensivo[attaccoNPC - 1];
             testoGenerato += mossaOffensiva.descrizione + '\n\n';
-            testoGenerato += '[QUOTE] Fase offensiva\n';
+            testoGenerato += `[QUOTE]\n`;
+            testoGenerato += `Fase offensiva\n`;
             let forzaBase = mossaOffensiva.valore + (tenaciaAttacco * 5);
-            let forzaTotale = forzaBase;
+            let attacco = forzaBase;
 
             if (ostinazioneAttacco) {
-                forzaTotale = Math.floor(forzaBase * 1.5);
-                testoGenerato += `Forza base = ${mossaOffensiva.valore} + (${tenaciaAttacco} * 5) = ${forzaBase}\n`;
-                testoGenerato += `Applicazione Ostinazione: ${forzaBase} * 1.5 = ${forzaTotale}\n`;
+                attacco = Math.floor(forzaBase * 1.5);
+                testoGenerato += `Forza base = ${mossaOffensiva.valore}\n`;
+                testoGenerato += `Attacco = (${mossaOffensiva.valore} + (${tenaciaAttacco} * 5)) * 1.5 (Bonus ostinazione) = ${attacco}\n`;
                 let velocitaFinale = npc.velocita * 3;
-                testoGenerato += `Velocità = ${velocitaFinale} (${npc.velocita} x 3) [/QUOTE]`;
+                testoGenerato += `Velocità = ${npc.velocita} * 3 (Bonus ostinazione) = ${velocitaFinale} [/QUOTE]`;
             } else {
-                testoGenerato += `Forza totale = ${mossaOffensiva.valore} + (${tenaciaAttacco} * 5) = ${forzaTotale}\n`;
+                testoGenerato += `Forza base = ${mossaOffensiva.valore}\n`;
+                testoGenerato += `Attacco = ${mossaOffensiva.valore} + (${tenaciaAttacco} * 5) = ${attacco}\n`;
                 testoGenerato += `Velocità = ${npc.velocita} [/QUOTE]`;
             }
         } else {
-            testoGenerato += `Velocità attacco (${velocitaAttacco}) maggiore di Riflessi (${npc.riflessi}) e/o Destrezza (${npc.destrezza}): Schivata non possibile\n`;
-            
-            resistenzaTotale = mossaDifensiva.valore;
+            testoGenerato += `${npc.nome} cerca di schivare l'attacco, senza riuscirci\n\n`;
+            testoGenerato += `[QUOTE]\n`;
+            testoGenerato += `Fase difensiva\n`;
+            testoGenerato += `Riflessi (${npc.riflessi}) e/o Destrezza (${npc.destrezza}) minori di Velocità attacco (${velocitaAttacco}): Schivata fallita\n`;
             
             if (ostinazioneDifesa) {
-                resistenzaTotale = arrotonda(resistenzaTotale * 0.5);
-                testoGenerato += `Resistenza base = ${mossaDifensiva.valore} + (${tenaciaDifesa} * 5) = ${mossaDifensiva.valore + (tenaciaDifesa * 5)}\n`;
-                testoGenerato += `Applicazione Ostinazione: ${mossaDifensiva.valore + (tenaciaDifesa * 5)} * 0.5 = ${resistenzaTotale}\n`;
+                difesa = Math.floor(mossaDifensiva.valore * 0.5);
+                testoGenerato += `Resistenza base = ${mossaDifensiva.valore}\n`;
+                testoGenerato += `Difesa = ${mossaDifensiva.valore} * 0.5 (Malus ostinazione) = ${difesa}\n`;
             } else {
-                testoGenerato += `Resistenza totale = ${mossaDifensiva.valore} + (${tenaciaDifesa} * 5) = ${resistenzaTotale}\n`;
+                difesa = mossaDifensiva.valore;
+                testoGenerato += `Resistenza base = ${mossaDifensiva.valore}\n`;
+                testoGenerato += `Difesa = ${mossaDifensiva.valore} = ${difesa}\n`;
             }
             
-            const dannoSubito = Math.max(0, forzaAttacco - resistenzaTotale);
+            const dannoSubito = Math.max(0, forzaAttacco - difesa);
             const vitaDopoAttacco = Math.max(0, vitaResidua - dannoSubito);
             
-            testoGenerato += `Danno subito = ${forzaAttacco} - ${resistenzaTotale} = ${dannoSubito}\n`;
+            testoGenerato += `Danno subito = ${forzaAttacco} - ${difesa} = ${dannoSubito}\n`;
             testoGenerato += `Vita residua = ${vitaResidua} - ${dannoSubito} = ${vitaDopoAttacco} [/QUOTE]\n\n`;
 
             // Controllo sconfitta NPC
@@ -534,40 +522,45 @@ function generaPost() {
             // Gestione fase offensiva dopo schivata fallita
             const mossaOffensiva = npc.movesetOffensivo[attaccoNPC - 1];
             testoGenerato += mossaOffensiva.descrizione + '\n\n';
-            testoGenerato += '[QUOTE] Fase offensiva\n';
+            testoGenerato += `[QUOTE]\n`;
+            testoGenerato += `Fase offensiva\n`;
             let forzaBase = mossaOffensiva.valore + (tenaciaAttacco * 5);
-            let forzaTotale = forzaBase;
+            let attacco = forzaBase;
 
             if (ostinazioneAttacco) {
-                forzaTotale = Math.floor(forzaBase * 1.5);
-                testoGenerato += `Forza base = ${mossaOffensiva.valore} + (${tenaciaAttacco} * 5) = ${forzaBase}\n`;
-                testoGenerato += `Applicazione Ostinazione: ${forzaBase} * 1.5 = ${forzaTotale}\n`;
+                attacco = Math.floor(forzaBase * 1.5);
+                testoGenerato += `Forza base = ${mossaOffensiva.valore}\n`;
+                testoGenerato += `Attacco = (${mossaOffensiva.valore} + (${tenaciaAttacco} * 5)) * 1.5 (Bonus ostinazione) = ${attacco}\n`;
                 let velocitaFinale = npc.velocita * 3;
-                testoGenerato += `Velocità = ${velocitaFinale} (${npc.velocita} x 3) [/QUOTE]`;
+                testoGenerato += `Velocità = ${npc.velocita} * 3 (Bonus ostinazione) = ${velocitaFinale} [/QUOTE]`;
             } else {
-                testoGenerato += `Forza totale = ${mossaOffensiva.valore} + (${tenaciaAttacco} * 5) = ${forzaTotale}\n`;
+                testoGenerato += `Forza base = ${mossaOffensiva.valore}\n`;
+                testoGenerato += `Attacco = ${mossaOffensiva.valore} + (${tenaciaAttacco} * 5) = ${attacco}\n`;
                 testoGenerato += `Velocità = ${npc.velocita} [/QUOTE]`;
             }
         }
     } else {
+        // Gestione normale della difesa
         testoGenerato += mossaDifensiva.descrizione + '\n\n';
-        testoGenerato += '[QUOTE] Fase difensiva\n';
+        testoGenerato += `[QUOTE]\n`;
+        testoGenerato += `Fase difensiva\n`;
         
         let resistenzaBase = mossaDifensiva.valore + (tenaciaDifesa * 5);
         
         if (ostinazioneDifesa) {
-            resistenzaTotale = Math.floor(resistenzaBase * 0.5);
-            testoGenerato += `Resistenza base = ${mossaDifensiva.valore} + (${tenaciaDifesa} * 5) = ${resistenzaBase}\n`;
-            testoGenerato += `Applicazione Ostinazione: ${resistenzaBase} * 0.5 = ${resistenzaTotale}\n`;
+            difesa = Math.floor(resistenzaBase * 0.5);
+            testoGenerato += `Resistenza base = ${mossaDifensiva.valore}\n`;
+            testoGenerato += `Difesa = (${mossaDifensiva.valore} + (${tenaciaDifesa} * 5)) * 0.5 (Malus ostinazione) = ${difesa}\n`;
         } else {
-            resistenzaTotale = resistenzaBase;
-            testoGenerato += `Resistenza totale = ${mossaDifensiva.valore} + (${tenaciaDifesa} * 5) = ${resistenzaTotale}\n`;
+            difesa = resistenzaBase;
+            testoGenerato += `Resistenza base = ${mossaDifensiva.valore}\n`;
+            testoGenerato += `Difesa = ${mossaDifensiva.valore} + (${tenaciaDifesa} * 5) = ${difesa}\n`;
         }
-
-        const dannoSubito = Math.max(0, forzaAttacco - resistenzaTotale);
+        
+        const dannoSubito = Math.max(0, forzaAttacco - difesa);
         const vitaDopoAttacco = Math.max(0, vitaResidua - dannoSubito);
         
-        testoGenerato += `Danno subito = ${forzaAttacco} - ${resistenzaTotale} = ${dannoSubito}\n`;
+        testoGenerato += `Danno subito = ${forzaAttacco} - ${difesa} = ${dannoSubito}\n`;
         testoGenerato += `Vita residua = ${vitaResidua} - ${dannoSubito} = ${vitaDopoAttacco} [/QUOTE]\n\n`;
 
         // Controllo sconfitta NPC
@@ -589,18 +582,20 @@ function generaPost() {
         // Aggiungi la fase offensiva
         const mossaOffensiva = npc.movesetOffensivo[attaccoNPC - 1];
         testoGenerato += mossaOffensiva.descrizione + '\n\n';
-        testoGenerato += '[QUOTE] Fase offensiva\n';
+        testoGenerato += `[QUOTE]\n`;
+        testoGenerato += `Fase offensiva\n`;
         let forzaBase = mossaOffensiva.valore + (tenaciaAttacco * 5);
-        let forzaTotale = forzaBase;
+        let attacco = forzaBase;
 
         if (ostinazioneAttacco) {
-            forzaTotale = Math.floor(forzaBase * 1.5);
-            testoGenerato += `Forza base = ${mossaOffensiva.valore} + (${tenaciaAttacco} * 5) = ${forzaBase}\n`;
-            testoGenerato += `Applicazione Ostinazione: ${forzaBase} * 1.5 = ${forzaTotale}\n`;
+            attacco = Math.floor(forzaBase * 1.5);
+            testoGenerato += `Forza base = ${mossaOffensiva.valore}\n`;
+            testoGenerato += `Attacco = (${mossaOffensiva.valore} + (${tenaciaAttacco} * 5)) * 1.5 (Bonus ostinazione) = ${attacco}\n`;
             let velocitaFinale = npc.velocita * 3;
-            testoGenerato += `Velocità = ${velocitaFinale} (${npc.velocita} x 3) [/QUOTE]`;
+            testoGenerato += `Velocità = ${npc.velocita} * 3 (Bonus ostinazione) = ${velocitaFinale} [/QUOTE]`;
         } else {
-            testoGenerato += `Forza totale = ${mossaOffensiva.valore} + (${tenaciaAttacco} * 5) = ${forzaTotale}\n`;
+            testoGenerato += `Forza base = ${mossaOffensiva.valore}\n`;
+            testoGenerato += `Attacco = ${mossaOffensiva.valore} + (${tenaciaAttacco} * 5) = ${attacco}\n`;
             testoGenerato += `Velocità = ${npc.velocita} [/QUOTE]`;
         }
     }
